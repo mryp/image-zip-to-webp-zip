@@ -105,7 +105,7 @@ namespace ImageZipToWebpZip
                 FolderPath = folderPath,
                 Quality = (int)qualityNumeric.Value,
                 Level = levelZeroCheckBox.Checked ? CompressionLevel.NoCompression : CompressionLevel.Fastest,
-                IsDelete = deleteCheckBox.Checked ? true : false,
+                IsDelete = deleteCheckBox.Checked,
             });
         }
 
@@ -212,7 +212,7 @@ namespace ImageZipToWebpZip
             {
                 //作業フォルダを作成
                 workDir = createWorkDir();
-                Log.Debug($"workDir={workDir}");
+                Log.Info($"作業フォルダ={workDir}");
 
                 //ZIP展開
                 if (!unzip(zipFile, workDir))
@@ -229,12 +229,17 @@ namespace ImageZipToWebpZip
                 }
 
                 //画像を変換する
-                foreach (var imageFile in imageFileList)
+                var loopResult = Parallel.ForEach(imageFileList, (imageFile, loopState) =>
                 {
                     if (!imageToWebp(imageFile, param.Quality, true))
                     {
-                        return false;
+                        loopState.Stop();
                     }
+                });
+                if (!loopResult.IsCompleted)
+                {
+                    Log.Warn("WebP変換処理エラーにより処理中断");
+                    return false;
                 }
 
                 //ZIPに固める
@@ -247,10 +252,12 @@ namespace ImageZipToWebpZip
                 //元の位置に移動する
                 if (param.IsDelete)
                 {
+                    //もとにファイルに上書き
                     File.Move(workZipFile, zipFile, true);
                 }
                 else
                 {
+                    //別名で保存
                     var zipDirPath = Path.GetDirectoryName(zipFile);
                     if (zipDirPath == null)
                     {
@@ -331,15 +338,18 @@ namespace ImageZipToWebpZip
                 Log.Warn($"画像ファイルパスはフルパスで指定してください file={imagePath}");
                 return false;
             }
-            var outputPath = Path.Combine(dirPath, Path.GetFileNameWithoutExtension(imagePath) + ".webp");
-            if (File.Exists(outputPath))
-            {
-                Log.Warn($"WebPファイルが既に存在しています file={outputPath}");
-                return false;
-            }
 
             try
             {
+                var outputPath = Path.Combine(dirPath, Path.GetFileNameWithoutExtension(imagePath) + ".webp");
+                if (File.Exists(outputPath))
+                {
+                    Log.Warn($"WebPファイルが既に存在するので削除 file={outputPath}");
+                    File.Delete(outputPath);
+                }
+
+                var fileName = Path.GetFileName(imagePath);
+                Log.Info($"WebP変換開始 file={fileName}");
                 using (var bitmap = new Bitmap(imagePath))
                 {
                     using var convBitmap = bitmap.Clone(new Rectangle(0, 0, bitmap.Width, bitmap.Height)
@@ -347,6 +357,7 @@ namespace ImageZipToWebpZip
                     using WebP webp = new WebP();
                     webp.Save(convBitmap, outputPath, quality);
                 }
+                Log.Info($"WebP変換終了 file={fileName}");
 
                 if (isDeleteSourceFile)
                 {
@@ -355,7 +366,7 @@ namespace ImageZipToWebpZip
             }
             catch (Exception e)
             {
-                Log.Error(e, "WebP変換処理例外");
+                Log.Error(e, "WebP変換例外");
                 return false;
             }
 

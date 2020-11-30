@@ -109,6 +109,8 @@ namespace ImageZipToWebpZip
             // deleteCheckBox
             // 
             this.deleteCheckBox.AutoSize = true;
+            this.deleteCheckBox.Checked = true;
+            this.deleteCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.deleteCheckBox.Location = new System.Drawing.Point(109, 108);
             this.deleteCheckBox.Name = "deleteCheckBox";
             this.deleteCheckBox.Size = new System.Drawing.Size(171, 24);
