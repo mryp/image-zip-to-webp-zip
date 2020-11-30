@@ -25,10 +25,11 @@ namespace ImageZipToWebpZip
             public int Quality { get; set; } = 75;
             public CompressionLevel Level { get; set; } = CompressionLevel.NoCompression;
             public bool IsDelete { get; set; } = true;
+            public bool UseSubfolder { get; set; } = false;
 
             public override string ToString()
             {
-                return $"{FolderPath},{Quality},{Level},{IsDelete}";
+                return $"{FolderPath},{Quality},{Level},{IsDelete},{UseSubfolder}";
             }
         }
 
@@ -106,6 +107,7 @@ namespace ImageZipToWebpZip
                 Quality = (int)qualityNumeric.Value,
                 Level = levelZeroCheckBox.Checked ? CompressionLevel.NoCompression : CompressionLevel.Fastest,
                 IsDelete = deleteCheckBox.Checked,
+                UseSubfolder = useSubfolderCheckBox.Checked,
             });
         }
 
@@ -160,7 +162,8 @@ namespace ImageZipToWebpZip
             }
 
             Log.Info($"処理開始 param={param}");
-            var zipFileList = Directory.GetFiles(param.FolderPath, "*.zip");
+            var searchOption = param.UseSubfolder ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            var zipFileList = Directory.GetFiles(param.FolderPath, "*.zip", searchOption);
             if (zipFileList.Length == 0)
             {
                 Log.Warn("フォルダ内にZIPファイルが見つからない");
