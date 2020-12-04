@@ -26,6 +26,7 @@ namespace ImageZipToWebpZip
             public CompressionLevel Level { get; set; } = CompressionLevel.NoCompression;
             public bool IsDelete { get; set; } = true;
             public bool UseSubfolder { get; set; } = false;
+            public bool UseSjisEnc { get; set; } = true;
 
             public override string ToString()
             {
@@ -39,11 +40,20 @@ namespace ImageZipToWebpZip
         private static readonly string[] _imageExtList = { ".jpg", ".png" };
 
         /// <summary>
+        /// SJISのエンコード
+        /// </summary>
+        private static Encoding _zipEntryDefaultEncoding = Encoding.UTF8;
+        private static Encoding _zipEntrySjisEncoding = Encoding.UTF8;
+
+        /// <summary>
         /// コンストラクタ
         /// </summary>
         public MainForm()
         {
             InitializeComponent();
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            _zipEntrySjisEncoding = Encoding.GetEncoding("Shift_JIS");
         }
 
         /// <summary>
@@ -108,6 +118,7 @@ namespace ImageZipToWebpZip
                 Level = levelZeroCheckBox.Checked ? CompressionLevel.NoCompression : CompressionLevel.Fastest,
                 IsDelete = deleteCheckBox.Checked,
                 UseSubfolder = useSubfolderCheckBox.Checked,
+                UseSjisEnc = useEncSjisCheckBox.Checked,
             });
         }
 
@@ -216,9 +227,10 @@ namespace ImageZipToWebpZip
                 //作業フォルダを作成
                 workDir = createWorkDir();
                 Log.Info($"作業フォルダ={workDir}");
+                Encoding entryEnc = param.UseSjisEnc ? _zipEntrySjisEncoding : _zipEntryDefaultEncoding;
 
                 //ZIP展開
-                if (!unzip(zipFile, workDir))
+                if (!unzip(zipFile, workDir, entryEnc))
                 {
                     return false;
                 }
@@ -228,6 +240,7 @@ namespace ImageZipToWebpZip
                     file => _imageExtList.Any(ext => file.ToLower().EndsWith(ext)));
                 if (!imageFileList.Any())
                 {
+                    Log.Error("変換対象ファイルが見つからない");
                     return false;
                 }
 
@@ -247,7 +260,7 @@ namespace ImageZipToWebpZip
 
                 //ZIPに固める
                 var workZipFile = workDir + ".zip";
-                if (!zip(workDir, workZipFile, param.Level))
+                if (!zip(workDir, workZipFile, param.Level, entryEnc))
                 {
                     return false;
                 }
@@ -311,11 +324,11 @@ namespace ImageZipToWebpZip
         /// <param name="zipFile"></param>
         /// <param name="outputDir"></param>
         /// <returns></returns>
-        private static bool unzip(string zipFile, string outputDir)
+        private static bool unzip(string zipFile, string outputDir, Encoding encoding)
         {
             try
             {
-                ZipFile.ExtractToDirectory(zipFile, outputDir);
+                ZipFile.ExtractToDirectory(zipFile, outputDir, encoding);
             }
             catch (Exception e)
             {
@@ -342,6 +355,7 @@ namespace ImageZipToWebpZip
                 return false;
             }
 
+            var fileName = "";
             try
             {
                 var outputPath = Path.Combine(dirPath, Path.GetFileNameWithoutExtension(imagePath) + ".webp");
@@ -351,7 +365,7 @@ namespace ImageZipToWebpZip
                     File.Delete(outputPath);
                 }
 
-                var fileName = Path.GetFileName(imagePath);
+                fileName = Path.GetFileName(imagePath);
                 Log.Info($"WebP変換開始 file={fileName}");
                 using (var bitmap = new Bitmap(imagePath))
                 {
@@ -369,7 +383,7 @@ namespace ImageZipToWebpZip
             }
             catch (Exception e)
             {
-                Log.Error(e, "WebP変換例外");
+                Log.Error(e, $"WebP変換例外 file={fileName}");
                 return false;
             }
 
@@ -383,7 +397,7 @@ namespace ImageZipToWebpZip
         /// <param name="outputPath"></param>
         /// <param name="level"></param>
         /// <returns></returns>
-        private static bool zip(string dirPath, string outputPath, CompressionLevel level)
+        private static bool zip(string dirPath, string outputPath, CompressionLevel level, Encoding encoding)
         {
             if (File.Exists(outputPath))
             {
@@ -393,7 +407,7 @@ namespace ImageZipToWebpZip
 
             try
             {
-                ZipFile.CreateFromDirectory(dirPath, outputPath, level, false);
+                ZipFile.CreateFromDirectory(dirPath, outputPath, level, false, encoding);
             }
             catch (Exception e)
             {

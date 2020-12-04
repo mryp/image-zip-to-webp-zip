@@ -45,6 +45,7 @@ namespace ImageZipToWebpZip
             this.bgWorker = new System.ComponentModel.BackgroundWorker();
             this.cancelButton = new System.Windows.Forms.Button();
             this.useSubfolderCheckBox = new System.Windows.Forms.CheckBox();
+            this.useEncSjisCheckBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.qualityNumeric)).BeginInit();
             this.SuspendLayout();
             // 
@@ -121,7 +122,7 @@ namespace ImageZipToWebpZip
             // 
             // startButton
             // 
-            this.startButton.Location = new System.Drawing.Point(12, 180);
+            this.startButton.Location = new System.Drawing.Point(12, 201);
             this.startButton.Name = "startButton";
             this.startButton.Size = new System.Drawing.Size(779, 49);
             this.startButton.TabIndex = 7;
@@ -131,7 +132,7 @@ namespace ImageZipToWebpZip
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(12, 235);
+            this.progressBar.Location = new System.Drawing.Point(12, 256);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(779, 29);
             this.progressBar.TabIndex = 8;
@@ -139,7 +140,7 @@ namespace ImageZipToWebpZip
             // progressStatusLabel
             // 
             this.progressStatusLabel.AutoSize = true;
-            this.progressStatusLabel.Location = new System.Drawing.Point(12, 267);
+            this.progressStatusLabel.Location = new System.Drawing.Point(12, 288);
             this.progressStatusLabel.Name = "progressStatusLabel";
             this.progressStatusLabel.Size = new System.Drawing.Size(54, 20);
             this.progressStatusLabel.TabIndex = 9;
@@ -147,7 +148,7 @@ namespace ImageZipToWebpZip
             // 
             // logButton
             // 
-            this.logButton.Location = new System.Drawing.Point(489, 303);
+            this.logButton.Location = new System.Drawing.Point(489, 324);
             this.logButton.Name = "logButton";
             this.logButton.Size = new System.Drawing.Size(148, 29);
             this.logButton.TabIndex = 10;
@@ -157,7 +158,7 @@ namespace ImageZipToWebpZip
             // 
             // aboutButton
             // 
-            this.aboutButton.Location = new System.Drawing.Point(643, 303);
+            this.aboutButton.Location = new System.Drawing.Point(643, 324);
             this.aboutButton.Name = "aboutButton";
             this.aboutButton.Size = new System.Drawing.Size(148, 29);
             this.aboutButton.TabIndex = 11;
@@ -179,7 +180,7 @@ namespace ImageZipToWebpZip
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(12, 303);
+            this.cancelButton.Location = new System.Drawing.Point(12, 324);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(91, 29);
             this.cancelButton.TabIndex = 12;
@@ -197,11 +198,24 @@ namespace ImageZipToWebpZip
             this.useSubfolderCheckBox.Text = "サブフォルダ内のZIPファイルも対象にする";
             this.useSubfolderCheckBox.UseVisualStyleBackColor = true;
             // 
+            // useEncSjisCheckBox
+            // 
+            this.useEncSjisCheckBox.AutoSize = true;
+            this.useEncSjisCheckBox.Checked = true;
+            this.useEncSjisCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.useEncSjisCheckBox.Location = new System.Drawing.Point(109, 168);
+            this.useEncSjisCheckBox.Name = "useEncSjisCheckBox";
+            this.useEncSjisCheckBox.Size = new System.Drawing.Size(257, 24);
+            this.useEncSjisCheckBox.TabIndex = 14;
+            this.useEncSjisCheckBox.Text = "ZIP内のファイル名をShift-JISとして扱う";
+            this.useEncSjisCheckBox.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(806, 364);
+            this.ClientSize = new System.Drawing.Size(806, 391);
+            this.Controls.Add(this.useEncSjisCheckBox);
             this.Controls.Add(this.useSubfolderCheckBox);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.aboutButton);
@@ -246,6 +260,7 @@ namespace ImageZipToWebpZip
         private System.ComponentModel.BackgroundWorker bgWorker;
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.CheckBox useSubfolderCheckBox;
+        private System.Windows.Forms.CheckBox useEncSjisCheckBox;
     }
 }
 
