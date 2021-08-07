@@ -37,7 +37,7 @@ namespace ImageZipToWebpZip
         /// <summary>
         /// WebPに変換する画像ファイルの拡張子リスト
         /// </summary>
-        private static readonly string[] _imageExtList = { ".jpg", ".png" };
+        private static readonly string[] _imageExtList = { ".jpg", ".jpe", ".jpeg", ".png" };
 
         /// <summary>
         /// SJISのエンコード
